@@ -1,4 +1,4 @@
-// Initialize the map with a dark tile layer
+// Initialize the map with a dark tile layer and set center
 const map = L.map('map').setView([-31.73197, -60.5238], 13);
 
 // Optional: Use a more distinct dark tile layer for enhanced dark mode experience
@@ -13,20 +13,12 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png
   maxZoom: 20
 }).addTo(map);
 
-
-// L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-//   maxZoom: 18,
-//   attribution: '© OpenStreetMap contributors',
-// }).addTo(map);
-
 // Function to generate a random color in hexadecimal
 function getRandomColor() {
-  const letters = '0123456789ABCDEF';
-  let color = '#';
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
+  const randomHue = Math.floor(Math.random() * 360); // Random hue between 0 and 359
+  const saturation = 50; // Fixed saturation at 50%
+  const lightness = 50; // Fixed lightness at 70%
+  return `hsl(${randomHue}, ${saturation}%, ${lightness}%)`;
 }
 
 // Object to store colors for each unique Territorio
@@ -70,20 +62,18 @@ const gruposQuery = jsonata(`
 }`);
 
 map.on('zoom', function () {
-  const zoomLevel = map.getZoom() ;
+  const zoomLevel = map.getZoom();
   var fSize;
-  if (zoomLevel < 14) { fSize = 0} else
-  if (zoomLevel < 15) {fSize = 1} else
-    if (zoomLevel < 16) { fSize = 1.5 } else
-      if (zoomLevel < 17) { fSize = 2 } else
-        if (zoomLevel < 18) { fSize =  3} else
-          if (zoomLevel < 19) { fSize = 4 } else
-            if (zoomLevel < 20) { fSize = 5 } else
-            { fSize = 6 } ;
-
-  console.log(zoomLevel + "  " + fSize)
+  if (zoomLevel < 14) { fSize = 0 } else
+    if (zoomLevel < 15) { fSize = 1 } else
+      if (zoomLevel < 16) { fSize = 1.5 } else
+        if (zoomLevel < 17) { fSize = 3 } else
+          if (zoomLevel < 18) { fSize = 5 } else
+            if (zoomLevel < 19) { fSize = 8 } else
+              if (zoomLevel < 20) { fSize = 10 } else { fSize = 12 };
+console.log(zoomLevel + " " + fSize)
   document.querySelectorAll('.territorio-label span').forEach(label => {
-    label.style.fontSize = `${(fSize)}em`; // Adjust font size based on zoom
+    label.style.fontSize = `${fSize}em`; // Adjust font size based on zoom
   });
 });
 
@@ -105,19 +95,12 @@ async function loadMapData() {
       }
     });
 
-    console.log("Transformed Territorios Data:", territoriosTransformed); // Debug
-
-    // Verify that transformedData is a valid FeatureCollection
-    if (territoriosTransformed.type !== "FeatureCollection" || !Array.isArray(territoriosTransformed.features)) {
-      throw new Error("Invalid GeoJSON structure for Territorios");
-    }
-
-    // Add the Territorios polygons to the map with dark mode styling
+    // Add the Territorios polygons to the map
     const territoriosLayer = L.geoJSON(territoriosTransformed, {
       style: function (feature) {
         const territorio = feature.properties.territorio;
         if (!territorioColors[territorio]) {
-          territorioColors[territorio] = getRandomColor(); // Assign random color if not already assigned
+          territorioColors[territorio] = getRandomColor();
         }
         return {
           color: territorioColors[territorio],
@@ -133,7 +116,7 @@ async function loadMapData() {
 
         const label = L.divIcon({
           className: 'polygon-label territorio-label',
-          html: `<span style="color: ${labelColor};">${feature.properties.territorio}</span>`,
+          html: `<span style="color: gray; opacity: 0.5;">${feature.properties.territorio}</span>`,
           iconSize: [100, 20],
           iconAnchor: [50, 10]
         });
@@ -141,9 +124,9 @@ async function loadMapData() {
 
         // Create a popup with territory and group info
         const popupContent = `
-      <b style="color: black;">Territorio:</b> ${feature.properties.territorio || "No data"}<br>
-      <b style="color: black;">Grupo:</b> ${feature.properties.Grupo || "No data"}
-    `;
+          <b style="color: black;">Territorio:</b> ${feature.properties.territorio || "No data"}<br>
+          <b style="color: black;">Grupo:</b> ${feature.properties.Grupo || "No data"}
+        `;
         layer.bindPopup(popupContent);
       }
     }).addTo(map);
@@ -163,40 +146,39 @@ async function loadMapData() {
       }
     });
 
-    console.log("Transformed Grupos Data:", gruposTransformed); // Debug
-
-    // Verify that transformedData is a valid FeatureCollection
-    if (gruposTransformed.type !== "FeatureCollection" || !Array.isArray(gruposTransformed.features)) {
-      throw new Error("Invalid GeoJSON structure for Grupos");
-    }
-
-    // Add the Grupos polygons to the map with dark mode styling, making them non-interactive
+    // Add the Grupos polygons to the map with a different style
     const gruposLayer = L.geoJSON(gruposTransformed, {
       style: function (feature) {
         return {
-          color: 'blue',  // Light cyan border for visibility
-          weight: 10,  // Thicker border for contrast
-          opacity: 0.2,  // Semi-transparent border
-          dashArray: '5, 15',
-          fillOpacity: 0, // No fill
+          color: 'teal',
+          weight: 10,
+          opacity: 0.25,
+          dashArray: '15, 5',
+          fillOpacity: 0,
         };
       },
       interactive: false  // Make the layer non-interactive
     }).addTo(map);
 
-    // Automatically adjust the map view to fit the bounds of the loaded data
+    // Fit map bounds to Territorios layer when loaded
     map.fitBounds(territoriosLayer.getBounds());
 
   } catch (error) {
     console.error("Error loading map data:", error);
   }
-};
+}
+
+// Load and display the map data
+loadMapData();
+
+// Add the light-only-labels layer on top in a separate pane
+map.createPane('labelsPane');  // Create a custom pane for labels
+map.getPane('labelsPane').style.zIndex = 650;  // Set z-index above other layers
+map.getPane('labelsPane').style.pointerEvents = 'none';  // Disable pointer events to prevent interference
 
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
   subdomains: 'abcd',
-  maxZoom: 20
+  maxZoom: 20,
+  pane: 'labelsPane'  // Assign to the custom pane
 }).addTo(map);
-
-// Call the async function to load and display the map data
-loadMapData();
