@@ -29,9 +29,10 @@ body {
 
 /* Style for labels */
 .polygon-label {
-  font-family: 'Arial', sans-serif;
+    font-family: 'Lexend Deca', sans-serif;
+      font-weight: 800;
   /* Sans-serif font for the labels */
-  font-size: 14px;
+  font-size: 1em;
   /* Set font size */
   color: rgba(0, 0, 0, 0.7);
   /* Semi-transparent black color */
@@ -43,8 +44,8 @@ body {
 }
 
 .grupo-label {
-  font-family: 'Arial', sans-serif;
-  font-weight: bolder;
+  font-family: 'Lexend Deca', sans-serif;
+    font-weight: 800;
   /* Sans-serif font for the labels */
   font-size: 60px;
   /* Set font size */
