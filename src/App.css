@@ -1,0 +1,42 @@
+/* Center content and set max width */
+.app-container {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 1rem;
+  font-family: var(--font-family);
+  color: var(--text-color);
+  background-color: var(--surface-100);
+}
+
+/* Align Menubar items */
+.p-menubar {
+  justify-content: space-between;
+  border: 0px;
+  background-color: var(--surface-100);
+}
+
+.site-title {
+  font-weight: normal;
+  font-size: 2rem;
+  color: var(--primary-color);
+  text-decoration: none;
+  cursor: pointer;
+  padding-left: 1rem
+}
+
+.content-container {
+  padding: 1rem;
+  border-radius: 8px;
+  /* box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.1);
+  background-color: var(--surface-b); */
+}
+body {
+  background-color: var(--surface-100);
+}
+
+@font-face {
+  font-family: 'CustomIcons';
+  src: url('/src/assets/fonts/jw-icons-external.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
