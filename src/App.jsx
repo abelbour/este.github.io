@@ -4,6 +4,7 @@ import { Dock } from 'primereact/dock';
 
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import './App.css';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 // Import the components for each page
 import Inicio from './pages/Inicio';
@@ -15,12 +16,13 @@ import Grupos from './pages/Grupos';
 import AgendaEventos from './pages/AgendaEventos';
 import ProgramaMantenimiento from './pages/ProgramaMantenimiento';
 
+const queryClient = new QueryClient();
+const siteTitle = "Co. Este"; // Variable for site title
+const pageTitle = "My Website"; // Variable for the page title (can be updated per page if needed)
 
 function App() {
   const navigate = useNavigate();
-  const siteTitle = "Co. Este"; // Variable for site title
-  const pageTitle = "My Website"; // Variable for the page title (can be updated per page if needed)
-
+  
   // Define menu items, excluding 'Inicio'
   const items = [
     {
@@ -63,27 +65,26 @@ function App() {
   );
 
   return (
-    
+    <QueryClientProvider client={queryClient}>
+      <div className="app-container">
 
-
-    <div className="app-container">
-
-<Dock model={items} position="left" />
-      <Menubar model={items} start={start} />
-      <div className="content-container">
-      
-        <Routes>
-          <Route path="/" element={<Inicio />} />
-          <Route path="/reuniones/programa-semanal" element={<ProgramaSemanal />} />
-          <Route path="/predicacion/programas/de-casa-en-casa" element={<DeCasaEnCasa />} />
-          <Route path="/predicacion/programas/publica" element={<Publica />} />
-          <Route path="/predicacion/mapas/territorios" element={<Territorios />} />
-          <Route path="/predicacion/mapas/grupos" element={<Grupos />} />
-          <Route path="/mas/agenda-de-eventos" element={<AgendaEventos />} />
-          <Route path="/mas/programa-de-mantenimiento" element={<ProgramaMantenimiento />} />
-        </Routes>
+        <Dock model={items} position="left" />
+        <Menubar model={items} start={start} />
+        <div className="content-container">
+        
+          <Routes>
+            <Route path="/" element={<Inicio />} />
+            <Route path="/reuniones/programa-semanal" element={<ProgramaSemanal />} />
+            <Route path="/predicacion/programas/de-casa-en-casa" element={<DeCasaEnCasa />} />
+            <Route path="/predicacion/programas/publica" element={<Publica />} />
+            <Route path="/predicacion/mapas/territorios" element={<Territorios />} />
+            <Route path="/predicacion/mapas/grupos" element={<Grupos />} />
+            <Route path="/mas/agenda-de-eventos" element={<AgendaEventos />} />
+            <Route path="/mas/programa-de-mantenimiento" element={<ProgramaMantenimiento />} />
+          </Routes>
+        </div>
       </div>
-    </div>
+    </QueryClientProvider>
   );
 }
 
